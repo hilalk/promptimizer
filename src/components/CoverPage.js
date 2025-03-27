@@ -25,11 +25,12 @@ const float = keyframes`
 `;
 
 const CoverPageContainer = styled.div`
-  width: 100%;
+  width: 100vw;
   height: 100vh;
   background-image: url('/assets/images/bg.png');
   background-size: cover;
   background-position: center;
+  background-color: transparent;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -37,12 +38,24 @@ const CoverPageContainer = styled.div`
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 100;
+  z-index: 1000;
   transition: transform 1s ease-in-out;
   transform: ${props => props.$isAnimating ? 'translateY(-100%)' : 'translateY(0)'};
   padding: 2rem;
   color: white;
   padding-bottom: 10vh;
+  overflow: hidden;
+  
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: -1;
+  }
 `;
 
 const Title = styled.h1`

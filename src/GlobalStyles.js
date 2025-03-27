@@ -39,6 +39,11 @@ const GlobalStyles = createGlobalStyle`
     position: relative;
     padding-bottom: 6rem; /* Space for footer */
   }
+  
+  /* Force all buttons to have border-radius */
+  button {
+    border-radius: 0.2rem !important;
+  }
 
   /* Responsive font scaling for mobile */
   @media (max-width: 768px) {
@@ -53,6 +58,7 @@ const GlobalStyles = createGlobalStyle`
     align-items: center;
     padding: 1.6rem;
     border: 0.2rem solid black;
+    border-radius: 0.2rem;
     background-color: transparent;
     text-transform: uppercase;
     font-family: 'Agdasima', sans-serif;

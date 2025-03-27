@@ -22,6 +22,20 @@ const ContentContainer = styled.div`
   margin: 0 auto;
   opacity: ${props => props.$visible ? '1' : '0'};
   transition: opacity 0.5s ease;
+  visibility: ${props => props.$visible ? 'visible' : 'hidden'};
+  position: relative;
+  z-index: 1;
+`;
+
+const AppBackground = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: ${props => props.$bgColor};
+  transition: background-color 0.5s ease;
+  z-index: 0;
 `;
 
 function App() {
@@ -59,8 +73,12 @@ function App() {
     // This is called when the pink color transition is complete
     setShowCover(false);
     setIsCoverTransitioning(false);
-    setAppReady(true);
-    setIsInitialTransitionComplete(true);
+    
+    // Delay setting app ready to ensure the cover is fully gone
+    setTimeout(() => {
+      setAppReady(true);
+      setIsInitialTransitionComplete(true);
+    }, 300);
   };
   
   // Legacy handler kept for backward compatibility
@@ -133,6 +151,7 @@ function App() {
   return (
     <>
       <GlobalStyles />
+      <AppBackground $bgColor={bgColor} />
       <AppContainer $bgColor={bgColor}>
         {/* The color grid is always rendered when needed */}
         {(showAnimation || isCoverTransitioning) && renderColorGrid()}
@@ -146,8 +165,8 @@ function App() {
           />
         )}
         
-        {/* Main content container */}
-        <ContentContainer $visible={appReady && !showAnimation}>
+        {/* Main content container - only visible when cover is gone and not animating */}
+        <ContentContainer $visible={appReady && !showAnimation && !showCover}>
           {appState === 'input' && (
             <PromptInput 
               onOptimize={handleOptimize}

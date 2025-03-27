@@ -79,7 +79,10 @@ const OptimizeButton = styled.button`
   align-self: flex-end;
   padding: 1.6rem;
   border: 0.2rem solid black;
-  background-color: white;
+  border-radius: 0.2rem !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
   text-transform: uppercase;
   font-family: 'Agdasima', sans-serif;
   font-size: 2rem;
@@ -91,10 +94,12 @@ const OptimizeButton = styled.button`
   
   &:hover {
     transform: scale(0.95);
+    background-color: transparent !important;
   }
   
   &:active {
     transform: scale(0.9);
+    background-color: transparent !important;
   }
   
   svg {
@@ -108,20 +113,28 @@ const PromptInput = ({ onOptimize, shouldStartAnimation = false }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [showPlaceholder, setShowPlaceholder] = useState(false);
   const [typedPlaceholder, setTypedPlaceholder] = useState('');
+  const [shouldStartTypewriter, setShouldStartTypewriter] = useState(false);
   const fullPlaceholder = "Click to enter prompt";
   const inputRef = useRef(null);
   const textareaRef = useRef(null);
   
-  // Wait for the main app transition before showing placeholder
+  // Wait for the main app transition before preparing for the typewriter animation
   useEffect(() => {
-    if (shouldStartAnimation) {
+    if (!shouldStartAnimation) return;
+    
+    // Delay showing the placeholder until the cover page is fully gone
+    const timer = setTimeout(() => {
+      console.log('Starting placeholder animation after cover transitions away');
       setShowPlaceholder(true);
-    }
+      setShouldStartTypewriter(true);
+    }, 500); // Delay after the cover transitions away
+    
+    return () => clearTimeout(timer);
   }, [shouldStartAnimation]);
   
-  // Typewriter effect for placeholder
+  // Typewriter effect for placeholder - only starts after the transition is complete
   useEffect(() => {
-    if (!showPlaceholder) return;
+    if (!shouldStartTypewriter) return;
     
     let currentIndex = 0;
     const interval = setInterval(() => {
@@ -134,7 +147,7 @@ const PromptInput = ({ onOptimize, shouldStartAnimation = false }) => {
     }, 80); // Speed of typing
     
     return () => clearInterval(interval);
-  }, [showPlaceholder]);
+  }, [shouldStartTypewriter]);
   
   useEffect(() => {
     console.log('PromptInput mounted');
@@ -223,6 +236,7 @@ const PromptInput = ({ onOptimize, shouldStartAnimation = false }) => {
           <OptimizeButton 
             $visible={true}
             onClick={handleOptimize}
+            style={{ borderRadius: '0.2rem' }}
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 16L7 11H17L12 16Z" fill="currentColor" />

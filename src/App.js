@@ -26,30 +26,47 @@ const ContentContainer = styled.div`
 
 function App() {
   const [showCover, setShowCover] = useState(true);
+  const [isCoverTransitioning, setIsCoverTransitioning] = useState(false);
   const [showAnimation, setShowAnimation] = useState(false);
   const [appState, setAppState] = useState('input'); // 'input', 'loading', 'result'
   const [bgColor, setBgColor] = useState('#FF00FF'); // Magenta color initially
   const [optimizedResult, setOptimizedResult] = useState(null);
   const [appReady, setAppReady] = useState(false);
+  const [isInitialTransitionComplete, setIsInitialTransitionComplete] = useState(false);
   
   useEffect(() => {
     console.log('App mounted');
   }, []);
   
-  const handleGetStarted = () => {
-    console.log('App starting...');
-    // Animation is managed by CoverPage component
-    // The CoverPage has already started its slide-up animation
+  // Handler for when CoverPage "Get Started" is clicked
+  const handleCoverComplete = () => {
+    console.log('Cover page animation complete, starting transition to color grid');
+    // Start the pink transition when cover animation completes
+    setIsCoverTransitioning(true);
     
-    // After CoverPage animation completes, we begin the color grid animation
-    setShowAnimation(true);
-    
-    // After color grid animation completes, show the main app
+    // Safety timeout to ensure we don't get stuck
     setTimeout(() => {
-      setShowCover(false); // Only now remove CoverPage from DOM
-      setShowAnimation(false);
-      setAppReady(true);
-    }, 2000); // Animation duration
+      if (isCoverTransitioning) {
+        console.log('Safety timeout: color grid transition taking too long, forcing completion');
+        handleCoverTransitionComplete();
+      }
+    }, 5000); // 5 second safety timeout
+  };
+  
+  // Handler for when the color grid transition to pink completes
+  const handleCoverTransitionComplete = () => {
+    console.log('Color grid transition to pink complete, showing main app');
+    // This is called when the pink color transition is complete
+    setShowCover(false);
+    setIsCoverTransitioning(false);
+    setAppReady(true);
+    setIsInitialTransitionComplete(true);
+  };
+  
+  // Legacy handler kept for backward compatibility
+  const handleGetStarted = () => {
+    console.log('Legacy handleGetStarted called');
+    // This is now handled by the multi-step transition
   };
   
   const handleOptimize = async (promptText) => {
@@ -80,22 +97,62 @@ function App() {
     setOptimizedResult(null);
   };
   
+  // Function to preload the main app content
+  const preloadMainApp = async () => {
+    return new Promise((resolve) => {
+      console.log('Preloading main app content');
+      // Set a flag that we're ready to show the main app
+      setTimeout(resolve, 500);
+    });
+  };
+  
+  // Render the ColorGrid component when needed
+  const renderColorGrid = () => {
+    console.log('Rendering ColorGrid with:', {
+      isVisible: showAnimation || isCoverTransitioning,
+      isCoverTransitioning,
+      appState,
+      finalColor: isCoverTransitioning ? '#FF00FF' : (appState === 'loading' ? '#FFFF00' : null)
+    });
+    
+    return (
+      <ColorGrid 
+        isVisible={showAnimation || isCoverTransitioning}
+        gridWidth={20}
+        gridHeight={12}
+        colors={['#00FFFF', '#FF00FF', '#FFFF00', '#000000', '#FFFFFF']}
+        transitionDuration={isCoverTransitioning ? 500 : 200}
+        transitionDelay={isCoverTransitioning ? 200 : 30}
+        finalColor={isCoverTransitioning ? '#FF00FF' : (appState === 'loading' ? '#FFFF00' : null)}
+        onFinalColorComplete={isCoverTransitioning ? handleCoverTransitionComplete : null}
+        onAnimationComplete={!isCoverTransitioning ? () => setShowAnimation(false) : null}
+      />
+    );
+  };
+  
   return (
     <>
       <GlobalStyles />
       <AppContainer $bgColor={bgColor}>
+        {/* The color grid is always rendered when needed */}
+        {(showAnimation || isCoverTransitioning) && renderColorGrid()}
+        
+        {/* The cover page is on top of everything else */}
         {showCover && (
-          <CoverPage onGetStarted={handleGetStarted} />
+          <CoverPage 
+            onComplete={handleCoverComplete} 
+            onGetStarted={handleGetStarted}
+            onPreloadContent={preloadMainApp}
+          />
         )}
         
-        <ColorGrid 
-          isVisible={showAnimation} 
-          onAnimationComplete={() => setShowAnimation(false)} 
-        />
-        
+        {/* Main content container */}
         <ContentContainer $visible={appReady && !showAnimation}>
           {appState === 'input' && (
-            <PromptInput onOptimize={handleOptimize} />
+            <PromptInput 
+              onOptimize={handleOptimize}
+              shouldStartAnimation={isInitialTransitionComplete}
+            />
           )}
           
           {appState === 'result' && optimizedResult && (

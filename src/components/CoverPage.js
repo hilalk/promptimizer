@@ -78,6 +78,14 @@ const Description = styled.p`
   }
 `;
 
+const ButtonArea = styled.div`
+  height: 7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+`;
+
 const GetStartedButton = styled.button`
   font-size: 1.3rem;
   padding: 1rem 2rem;
@@ -128,23 +136,56 @@ const Logo = styled.img`
   margin-left: 0.5rem;
 `;
 
-const CoverPage = ({ onGetStarted }) => {
+const CoverPage = ({ onComplete, onGetStarted, onPreloadContent }) => {
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isButtonVisible, setIsButtonVisible] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   
+  // Preload content as soon as component mounts
   useEffect(() => {
-    console.log('CoverPage mounted');
-  }, []);
+    const preloadApp = async () => {
+      console.log('CoverPage mounted, preloading content');
+      setIsLoading(true);
+      
+      try {
+        if (onPreloadContent) {
+          await onPreloadContent();
+        }
+        // Once preloaded, show the button
+        setIsButtonVisible(true);
+        setIsLoading(false);
+        console.log('Content preloaded, button is visible');
+      } catch (error) {
+        console.error('Error preloading content:', error);
+        // Show button anyway if there's an error
+        setIsButtonVisible(true);
+        setIsLoading(false);
+      }
+    };
+    
+    preloadApp();
+  }, [onPreloadContent]);
   
   const handleGetStarted = () => {
-    console.log('Get Started clicked');
-    setIsAnimating(true);
+    console.log('Get Started clicked, initiating transition');
     
-    // Wait for slide-up animation to complete before calling onGetStarted
-    setTimeout(() => {
-      if (onGetStarted) {
-        onGetStarted();
-      }
-    }, 1000);
+    // Only animate if button is visible and not in loading state
+    if (isButtonVisible && !isLoading) {
+      setIsAnimating(true);
+      
+      // Wait for slide-up animation to complete then call onComplete
+      setTimeout(() => {
+        console.log('Slide-up animation complete, calling onComplete');
+        if (onComplete) {
+          onComplete();
+        }
+        
+        // Also call the legacy onGetStarted for backward compatibility
+        if (onGetStarted) {
+          onGetStarted();
+        }
+      }, 1000);
+    }
   };
   
   return (
@@ -153,7 +194,13 @@ const CoverPage = ({ onGetStarted }) => {
       <Description>Promptimizer optimizes your prompt to AI tools for better results.
           <br /> Simply enter your prompt and see the magic happen.
       </Description>
-      <GetStartedButton onClick={handleGetStarted}>Get Started</GetStartedButton>
+      <ButtonArea>
+        {isButtonVisible && (
+          <GetStartedButton onClick={handleGetStarted}>
+            Get Started
+          </GetStartedButton>
+        )}
+      </ButtonArea>
       <Footer>
         <span>AI Experiment</span>
         <span className="noe-italic"> by </span>

@@ -1,5 +1,21 @@
 import { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
+
+const fadeInUp = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
+
+const blink = keyframes`
+  from, to { opacity: 1; }
+  50% { opacity: 0; }
+`;
 
 const InputContainer = styled.div`
   display: flex;
@@ -11,6 +27,29 @@ const InputContainer = styled.div`
   position: relative;
 `;
 
+const InputWrapper = styled.div`
+  position: relative;
+  width: 100%;
+  max-width: 100rem;
+`;
+
+const Placeholder = styled.div`
+  position: absolute;
+  top: 1.6rem;
+  left: 0;
+  font-size: 2.5rem;
+  color: black;
+  font-family: 'Agdasima', sans-serif;
+  pointer-events: none;
+  animation: ${fadeInUp} 0.8s ease-out forwards;
+`;
+
+const Cursor = styled.span`
+  display: inline-block;
+  margin-left: 0.2rem;
+  animation: ${blink} 1s step-end infinite;
+`;
+
 const StyledInput = styled.input`
   width: 100%;
   max-width: 100rem;
@@ -19,12 +58,11 @@ const StyledInput = styled.input`
   border: none;
   background: transparent;
   color: white;
-  border-bottom: 0.2rem solid white;
   outline: none;
   font-family: 'Agdasima', sans-serif;
   
   &::placeholder {
-    color: rgba(255, 255, 255, 0.7);
+    color: transparent; // Hide the native placeholder
   }
 `;
 
@@ -58,23 +96,49 @@ const OptimizeButton = styled.button`
   }
 `;
 
-const PromptInput = ({ onOptimize }) => {
+const PromptInput = ({ onOptimize, shouldStartAnimation = false }) => {
   const [prompt, setPrompt] = useState('');
   const [buttonVisible, setButtonVisible] = useState(false);
   const [buttonPosition, setButtonPosition] = useState(0);
+  const [isFocused, setIsFocused] = useState(false);
+  const [showPlaceholder, setShowPlaceholder] = useState(false);
+  const [typedPlaceholder, setTypedPlaceholder] = useState('');
+  const fullPlaceholder = "Click to enter prompt";
   const inputRef = useRef(null);
+  
+  // Wait for the main app transition before showing placeholder
+  useEffect(() => {
+    if (shouldStartAnimation) {
+      setShowPlaceholder(true);
+    }
+  }, [shouldStartAnimation]);
+  
+  // Typewriter effect for placeholder
+  useEffect(() => {
+    if (!showPlaceholder) return;
+    
+    let currentIndex = 0;
+    const interval = setInterval(() => {
+      if (currentIndex <= fullPlaceholder.length) {
+        setTypedPlaceholder(fullPlaceholder.substring(0, currentIndex));
+        currentIndex++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 80); // Speed of typing
+    
+    return () => clearInterval(interval);
+  }, [showPlaceholder]);
   
   useEffect(() => {
     console.log('PromptInput mounted');
-    // Focus the input automatically
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
+    // Focus handled separately for typewriter effect
   }, []);
   
   useEffect(() => {
     if (prompt.length > 0) {
       setButtonVisible(true);
+      setShowPlaceholder(false);
       
       // Calculate button position based on input width
       if (inputRef.current) {
@@ -89,8 +153,21 @@ const PromptInput = ({ onOptimize }) => {
       }
     } else {
       setButtonVisible(false);
+      if (!isFocused) {
+        setShowPlaceholder(true);
+      }
     }
-  }, [prompt]);
+  }, [prompt, isFocused]);
+  
+  const handleFocus = () => {
+    setIsFocused(true);
+    setShowPlaceholder(false);
+  };
+  
+  const handleBlur = () => {
+    setIsFocused(false);
+    setShowPlaceholder(prompt.length === 0);
+  };
   
   const handleKeyDown = (e) => {
     // Submit on Enter key
@@ -106,27 +183,40 @@ const PromptInput = ({ onOptimize }) => {
     }
   };
   
+  const handleContainerClick = () => {
+    inputRef.current?.focus();
+  };
+  
   return (
-    <InputContainer>
-      <StyledInput
-        ref={inputRef}
-        type="text"
-        placeholder="Click to enter prompt"
-        value={prompt}
-        onChange={(e) => setPrompt(e.target.value)}
-        onKeyDown={handleKeyDown}
-      />
-      <OptimizeButton 
-        $visible={buttonVisible}
-        $right={buttonPosition}
-        onClick={handleOptimize}
-      >
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 16L7 11H17L12 16Z" fill="currentColor" />
-          <path d="M12 8L17 13H7L12 8Z" fill="currentColor" />
-        </svg>
-        Optimize
-      </OptimizeButton>
+    <InputContainer onClick={handleContainerClick}>
+      <InputWrapper>
+        {showPlaceholder && !isFocused && (
+          <Placeholder>
+            {typedPlaceholder}<Cursor>|</Cursor>
+          </Placeholder>
+        )}
+        <StyledInput
+          ref={inputRef}
+          type="text"
+          placeholder=""
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          onKeyDown={handleKeyDown}
+        />
+        <OptimizeButton 
+          $visible={buttonVisible}
+          $right={buttonPosition}
+          onClick={handleOptimize}
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 16L7 11H17L12 16Z" fill="currentColor" />
+            <path d="M12 8L17 13H7L12 8Z" fill="currentColor" />
+          </svg>
+          Optimize
+        </OptimizeButton>
+      </InputWrapper>
     </InputContainer>
   );
 };

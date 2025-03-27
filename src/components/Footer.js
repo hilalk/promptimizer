@@ -13,7 +13,7 @@ const FooterContainer = styled.footer`
   border-top: 0.2rem solid black;
   font-family: 'ESKlarheitPlakat-Xbd', sans-serif;
   font-size: 1.5rem;
-  background-color: white;
+  background-color: transparent;
   z-index: 5;
 `;
 
@@ -46,7 +46,7 @@ const SocialIcon = styled.a`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: black;
+  color: white;
   text-decoration: none;
   
   svg {

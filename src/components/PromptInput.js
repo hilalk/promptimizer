@@ -30,7 +30,7 @@ const StyledInput = styled.input`
 
 const OptimizeButton = styled.button`
   position: absolute;
-  right: ${props => props.right}px;
+  right: ${props => props.$right}px;
   display: flex;
   align-items: center;
   padding: 1.6rem;
@@ -41,9 +41,9 @@ const OptimizeButton = styled.button`
   font-size: 2rem;
   cursor: pointer;
   transition: transform 0.2s ease, opacity 0.3s ease;
-  transform: ${props => props.visible ? 'scale(1)' : 'scale(0.9)'};
-  opacity: ${props => props.visible ? '1' : '0'};
-  pointer-events: ${props => props.visible ? 'all' : 'none'};
+  transform: ${props => props.$visible ? 'scale(1)' : 'scale(0.9)'};
+  opacity: ${props => props.$visible ? '1' : '0'};
+  pointer-events: ${props => props.$visible ? 'all' : 'none'};
   
   &:hover {
     transform: scale(0.95);
@@ -117,8 +117,8 @@ const PromptInput = ({ onOptimize }) => {
         onKeyDown={handleKeyDown}
       />
       <OptimizeButton 
-        visible={buttonVisible}
-        right={buttonPosition}
+        $visible={buttonVisible}
+        $right={buttonPosition}
         onClick={handleOptimize}
       >
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

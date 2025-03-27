@@ -43,7 +43,9 @@ const ColorGrid = ({ onAnimationComplete, isVisible }) => {
         gridData.push({
           x: j * boxSize,
           y: i * boxSize,
-          color: colors[Math.floor(Math.random() * colors.length)]
+          color: colors[Math.floor(Math.random() * colors.length)],
+          row: i,
+          col: j
         });
       }
     }
@@ -59,11 +61,12 @@ const ColorGrid = ({ onAnimationComplete, isVisible }) => {
       .attr('height', boxSize)
       .attr('fill', d => d.color);
     
-    // Animation function to change colors
+    // Animation function to change colors with a wave effect
     function animateColors() {
       squares
         .transition()
         .duration(500)
+        .delay((d) => d.row * 20) // Wave effect: delay based on row
         .attr('fill', () => colors[Math.floor(Math.random() * colors.length)])
         .on('end', function(d, i) {
           if (i === 0) { // Only trigger on the first element to avoid multiple calls
@@ -75,13 +78,29 @@ const ColorGrid = ({ onAnimationComplete, isVisible }) => {
     // Start animation
     animateColors();
     
-    // Set timeout to complete animation
+    // Transition to final state with wave effect
+    function transitionToFinalColor() {
+      const finalColor = '#FF00FF'; // Magenta for final state
+      
+      squares
+        .transition()
+        .duration(500)
+        .delay((d) => (d.row + d.col) * 15) // Diagonal wave pattern
+        .attr('fill', finalColor)
+        .on('end', function(d, i) {
+          if (i === gridData.length - 1) { // Callback on last square
+            if (onAnimationComplete) {
+              onAnimationComplete();
+            }
+          }
+        });
+    }
+    
+    // Set timeout to complete animation with final transition
     const timer = setTimeout(() => {
-      console.log('ColorGrid animation complete');
-      if (onAnimationComplete) {
-        onAnimationComplete();
-      }
-    }, 2000); // Animation runs for 2 seconds
+      console.log('ColorGrid animation transitioning to final state');
+      transitionToFinalColor();
+    }, 1500); // Run colorful animation for 1.5 seconds before final transition
     
     // Cleanup function
     return () => {

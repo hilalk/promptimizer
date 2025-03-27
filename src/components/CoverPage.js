@@ -1,5 +1,28 @@
 import { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
+
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
+
+const float = keyframes`
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(3px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+`;
 
 const CoverPageContainer = styled.div`
   width: 100%;
@@ -16,7 +39,7 @@ const CoverPageContainer = styled.div`
   left: 0;
   z-index: 100;
   transition: transform 1s ease-in-out;
-  transform: ${props => props.slideUp ? 'translateY(-100%)' : 'translateY(0)'};
+  transform: ${props => props.$isAnimating ? 'translateY(-100%)' : 'translateY(0)'};
   padding: 2rem;
   color: white;
   padding-bottom: 10vh;
@@ -27,6 +50,9 @@ const Title = styled.h1`
   margin-bottom: 2rem;
   text-align: center;
   font-family: 'NoeDisplay-RegularItalic', serif;
+  opacity: 0;
+  animation: ${fadeIn} 0.8s ease-out forwards;
+  animation-delay: 0.3s;
   
   @media (max-width: 768px) {
     font-size: 8rem;
@@ -39,6 +65,9 @@ const Description = styled.p`
   text-align: center;
   max-width: 80rem;
   font-family: 'ESKlarheitKurrent-Rg', sans-serif;
+  opacity: 0;
+  animation: ${fadeIn} 0.8s ease-out forwards;
+  animation-delay: 0.6s;
   
   .klarheit {
     font-family: 'ESKlarheitKurrent-Rg', sans-serif;
@@ -58,9 +87,12 @@ const GetStartedButton = styled.button`
   background-color: transparent;
   text-transform: uppercase;
   cursor: pointer;
-  transition: transform 0.2s ease;
+  opacity: 0;
+  animation: ${fadeIn} 0.8s ease-out forwards, ${float} 1s ease-in-out infinite;
+  animation-delay: 0.9s, 1.7s;
   
   &:hover {
+    animation-play-state: paused;
     transform: scale(0.95);
   }
   
@@ -80,11 +112,14 @@ const Footer = styled.footer`
   align-items: center;
   font-family: 'ESKlarheitPlakat-Xbd', sans-serif;
   font-size: 2rem;
+  opacity: 0;
+  animation: ${fadeIn} 0.8s ease-out forwards;
+  animation-delay: 1.2s;
   
   .noe-italic {
     font-family: 'NoeDisplay-RegularItalic', sans-serif;
-    font-size:2.3rem;
-    margin-left:5px;
+    font-size: 2.3rem;
+    margin-left: 5px;
   }
 `;
 
@@ -94,7 +129,7 @@ const Logo = styled.img`
 `;
 
 const CoverPage = ({ onGetStarted }) => {
-  const [slideUp, setSlideUp] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
   
   useEffect(() => {
     console.log('CoverPage mounted');
@@ -102,9 +137,9 @@ const CoverPage = ({ onGetStarted }) => {
   
   const handleGetStarted = () => {
     console.log('Get Started clicked');
-    setSlideUp(true);
+    setIsAnimating(true);
     
-    // Wait for animation to complete before calling onGetStarted
+    // Wait for slide-up animation to complete before calling onGetStarted
     setTimeout(() => {
       if (onGetStarted) {
         onGetStarted();
@@ -113,9 +148,9 @@ const CoverPage = ({ onGetStarted }) => {
   };
   
   return (
-    <CoverPageContainer slideUp={slideUp}>
+    <CoverPageContainer $isAnimating={isAnimating}>
       <Title>Promptimizer</Title>
-      <Description> Promptimizer optimizes your prompt to AI tools for better results.
+      <Description>Promptimizer optimizes your prompt to AI tools for better results.
           <br /> Simply enter your prompt and see the magic happen.
       </Description>
       <GetStartedButton onClick={handleGetStarted}>Get Started</GetStartedButton>

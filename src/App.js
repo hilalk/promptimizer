@@ -11,7 +11,7 @@ import { optimizePrompt } from './services/api';
 const AppContainer = styled.div`
   min-height: 100vh;
   width: 100%;
-  background-color: ${props => props.bgColor};
+  background-color: ${props => props.$bgColor};
   transition: background-color 0.5s ease;
   padding-bottom: 6rem;
 `;
@@ -20,7 +20,7 @@ const ContentContainer = styled.div`
   padding: 2rem;
   max-width: 120rem;
   margin: 0 auto;
-  opacity: ${props => props.visible ? '1' : '0'};
+  opacity: ${props => props.$visible ? '1' : '0'};
   transition: opacity 0.5s ease;
 `;
 
@@ -38,11 +38,15 @@ function App() {
   
   const handleGetStarted = () => {
     console.log('App starting...');
-    setShowCover(false);
+    // Animation is managed by CoverPage component
+    // The CoverPage has already started its slide-up animation
+    
+    // After CoverPage animation completes, we begin the color grid animation
     setShowAnimation(true);
     
-    // After animation completes
+    // After color grid animation completes, show the main app
     setTimeout(() => {
+      setShowCover(false); // Only now remove CoverPage from DOM
       setShowAnimation(false);
       setAppReady(true);
     }, 2000); // Animation duration
@@ -79,7 +83,7 @@ function App() {
   return (
     <>
       <GlobalStyles />
-      <AppContainer bgColor={bgColor}>
+      <AppContainer $bgColor={bgColor}>
         {showCover && (
           <CoverPage onGetStarted={handleGetStarted} />
         )}
@@ -89,7 +93,7 @@ function App() {
           onAnimationComplete={() => setShowAnimation(false)} 
         />
         
-        <ContentContainer visible={appReady && !showAnimation}>
+        <ContentContainer $visible={appReady && !showAnimation}>
           {appState === 'input' && (
             <PromptInput onOptimize={handleOptimize} />
           )}

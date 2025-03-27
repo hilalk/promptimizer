@@ -18,12 +18,15 @@ const CoverPageContainer = styled.div`
   transition: transform 1s ease-in-out;
   transform: ${props => props.slideUp ? 'translateY(-100%)' : 'translateY(0)'};
   padding: 2rem;
+  color: white;
+  padding-bottom: 10vh;
 `;
 
 const Title = styled.h1`
-  font-size: 10rem;
+  font-size: 5rem;
   margin-bottom: 2rem;
   text-align: center;
+  font-family: 'NoeDisplay-RegularItalic', serif;
   
   @media (max-width: 768px) {
     font-size: 8rem;
@@ -31,24 +34,27 @@ const Title = styled.h1`
 `;
 
 const Description = styled.p`
-  font-size: 3rem;
-  margin-bottom: 4rem;
+  font-size: 1.5rem;
+  margin-bottom: 2.3rem;
   text-align: center;
   max-width: 80rem;
+  font-family: 'ESKlarheitKurrent-Rg', sans-serif;
   
   .klarheit {
     font-family: 'ESKlarheitKurrent-Rg', sans-serif;
   }
   
   .noe-italic {
-    font-family: 'NoeDisplay-RegularItalic', sans-serif;
+    font-family: 'NoeDisplay-RegularItalic', serif;
   }
 `;
 
 const GetStartedButton = styled.button`
-  font-size: 2.5rem;
-  padding: 1.6rem 3.2rem;
-  border: 0.2rem solid black;
+  font-size: 1.3rem;
+  padding: 1rem 2rem;
+  border: 0.1rem solid white;
+  border-radius: 0.2rem;
+  color: white;
   background-color: transparent;
   text-transform: uppercase;
   cursor: pointer;
@@ -72,12 +78,13 @@ const Footer = styled.footer`
   display: flex;
   justify-content: center;
   align-items: center;
-  border-top: 0.2rem solid black;
   font-family: 'ESKlarheitPlakat-Xbd', sans-serif;
-  font-size: 1.5rem;
+  font-size: 2rem;
   
   .noe-italic {
     font-family: 'NoeDisplay-RegularItalic', sans-serif;
+    font-size:2.3rem;
+    margin-left:5px;
   }
 `;
 
@@ -108,15 +115,13 @@ const CoverPage = ({ onGetStarted }) => {
   return (
     <CoverPageContainer slideUp={slideUp}>
       <Title>Promptimizer</Title>
-      <Description>
-        <span className="noe-italic">Promptimizer</span> optimizes your prompt to AI tools for better results. 
-        Simply enter your prompt and see the magic happen. <span className="klarheit">ESKlarheitKurrent-Rg.woff</span>
+      <Description> Promptimizer optimizes your prompt to AI tools for better results.
+          <br /> Simply enter your prompt and see the magic happen.
       </Description>
       <GetStartedButton onClick={handleGetStarted}>Get Started</GetStartedButton>
       <Footer>
         <span>AI Experiment</span>
         <span className="noe-italic"> by </span>
-        <span>Penguins from Pluto</span>
         <Logo src="/assets/images/logo.svg" alt="Penguins from Pluto Logo" />
       </Footer>
     </CoverPageContainer>

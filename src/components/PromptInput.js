@@ -31,13 +31,16 @@ const InputWrapper = styled.div`
   position: relative;
   width: 100%;
   max-width: 100rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 `;
 
 const Placeholder = styled.div`
   position: absolute;
   top: 1.6rem;
   left: 0;
-  font-size: 2.5rem;
+  font-size: 7rem;
   color: black;
   font-family: 'Agdasima', sans-serif;
   pointer-events: none;
@@ -50,16 +53,19 @@ const Cursor = styled.span`
   animation: ${blink} 1s step-end infinite;
 `;
 
-const StyledInput = styled.input`
+const StyledInput = styled.textarea`
   width: 100%;
   max-width: 100rem;
   padding: 1.6rem;
-  font-size: 2.5rem;
+  font-size: 7rem;
   border: none;
   background: transparent;
-  color: white;
+  color: black;
   outline: none;
   font-family: 'Agdasima', sans-serif;
+  resize: none;
+  overflow: hidden;
+  min-height: 9rem;
   
   &::placeholder {
     color: transparent; // Hide the native placeholder
@@ -67,10 +73,10 @@ const StyledInput = styled.input`
 `;
 
 const OptimizeButton = styled.button`
-  position: absolute;
-  right: ${props => props.$right}px;
   display: flex;
   align-items: center;
+  margin-top: 2rem;
+  align-self: flex-end;
   padding: 1.6rem;
   border: 0.2rem solid black;
   background-color: white;
@@ -99,12 +105,12 @@ const OptimizeButton = styled.button`
 const PromptInput = ({ onOptimize, shouldStartAnimation = false }) => {
   const [prompt, setPrompt] = useState('');
   const [buttonVisible, setButtonVisible] = useState(false);
-  const [buttonPosition, setButtonPosition] = useState(0);
   const [isFocused, setIsFocused] = useState(false);
   const [showPlaceholder, setShowPlaceholder] = useState(false);
   const [typedPlaceholder, setTypedPlaceholder] = useState('');
   const fullPlaceholder = "Click to enter prompt";
   const inputRef = useRef(null);
+  const textareaRef = useRef(null);
   
   // Wait for the main app transition before showing placeholder
   useEffect(() => {
@@ -136,21 +142,10 @@ const PromptInput = ({ onOptimize, shouldStartAnimation = false }) => {
   }, []);
   
   useEffect(() => {
+    // Show button if there's text in the input
     if (prompt.length > 0) {
       setButtonVisible(true);
       setShowPlaceholder(false);
-      
-      // Calculate button position based on input width
-      if (inputRef.current) {
-        const inputWidth = inputRef.current.offsetWidth;
-        const promptLength = prompt.length;
-        const charWidth = inputWidth / 50; // Estimate character width
-        const textWidth = promptLength * charWidth;
-        const maxPosition = inputWidth - 150; // Button width + padding
-        const newPosition = Math.min(textWidth + 20, maxPosition);
-        
-        setButtonPosition(newPosition);
-      }
     } else {
       setButtonVisible(false);
       if (!isFocused) {
@@ -158,6 +153,20 @@ const PromptInput = ({ onOptimize, shouldStartAnimation = false }) => {
       }
     }
   }, [prompt, isFocused]);
+  
+  // Auto-resize the textarea when content changes
+  const adjustHeight = () => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = `${textarea.scrollHeight}px`;
+    }
+  };
+  
+  // Update height when prompt changes
+  useEffect(() => {
+    adjustHeight();
+  }, [prompt]);
   
   const handleFocus = () => {
     setIsFocused(true);
@@ -190,32 +199,38 @@ const PromptInput = ({ onOptimize, shouldStartAnimation = false }) => {
   return (
     <InputContainer onClick={handleContainerClick}>
       <InputWrapper>
-        {showPlaceholder && !isFocused && (
-          <Placeholder>
-            {typedPlaceholder}<Cursor>|</Cursor>
-          </Placeholder>
+        <div style={{ position: 'relative', width: '100%' }}>
+          {showPlaceholder && !isFocused && (
+            <Placeholder>
+              {typedPlaceholder}<Cursor>|</Cursor>
+            </Placeholder>
+          )}
+          <StyledInput
+            ref={(el) => {
+              textareaRef.current = el;
+              inputRef.current = el;
+            }}
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            onKeyDown={handleKeyDown}
+            rows={1}
+          />
+        </div>
+        
+        {buttonVisible && (
+          <OptimizeButton 
+            $visible={true}
+            onClick={handleOptimize}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 16L7 11H17L12 16Z" fill="currentColor" />
+              <path d="M12 8L17 13H7L12 8Z" fill="currentColor" />
+            </svg>
+            Optimize
+          </OptimizeButton>
         )}
-        <StyledInput
-          ref={inputRef}
-          type="text"
-          placeholder=""
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          onKeyDown={handleKeyDown}
-        />
-        <OptimizeButton 
-          $visible={buttonVisible}
-          $right={buttonPosition}
-          onClick={handleOptimize}
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 16L7 11H17L12 16Z" fill="currentColor" />
-            <path d="M12 8L17 13H7L12 8Z" fill="currentColor" />
-          </svg>
-          Optimize
-        </OptimizeButton>
       </InputWrapper>
     </InputContainer>
   );

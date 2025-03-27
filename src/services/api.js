@@ -1,18 +1,27 @@
 import OpenAI from 'openai';
 
+// Get API key from environment variables
+const apiKey = process.env.REACT_APP_OPENAI_API_KEY || '';
+
+// Validate API key
+if (!apiKey || apiKey === 'your-api-key-placeholder') {
+  console.error('WARNING: OpenAI API key is not set or using placeholder. API calls will fail.');
+}
+
 // Initialize OpenAI client
 const openai = new OpenAI({
-  apiKey: process.env.REACT_APP_OPENAI_API_KEY || 'your-api-key-placeholder', // Use environment variable
+  apiKey: apiKey,
   dangerouslyAllowBrowser: true // Note: In production, API calls should be handled by a backend
 });
 
-// Actual OpenAI API call
-const actualOptimizePrompt = async (originalPrompt) => {
-  console.log('Calling OpenAI API to optimize prompt:', originalPrompt);
-  
+// Function to optimize prompt using OpenAI API
+const optimizePrompt = async (originalPrompt) => {
   try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4-turbo",
+    console.log('Starting prompt optimization with OpenAI API');
+    
+    // Make API request
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini", // Using the same model as prompt-eng
       messages: [
         {
           role: "system",
@@ -104,67 +113,28 @@ Do not include any text outside the JSON object. Ensure all newlines in the expl
       response_format: { type: "json_object" }
     });
     
-    console.log('OpenAI API response received:', response.choices[0].message);
+    console.log('OpenAI response received:', completion.choices[0]?.message?.content);
     
-    // Parse the JSON from the response
-    const responseContent = JSON.parse(response.choices[0].message.content);
-    return responseContent;
+    // Parse and validate the response
+    const result = JSON.parse(completion.choices[0]?.message?.content || '{}');
+    
+    if (!result.optimizedPrompt || !result.explanation) {
+      throw new Error('Invalid response format from OpenAI');
+    }
+    
+    // Match the expected format in your app
+    return {
+      optimizedPrompt: result.optimizedPrompt,
+      explanation: result.explanation
+    };
   } catch (error) {
     console.error('OpenAI API error:', error);
-    throw error;
-  }
-};
-
-// Mock function as fallback in case API doesn't work
-const mockOptimizePrompt = (originalPrompt) => {
-  console.log('Mocking optimize prompt call:', originalPrompt);
-  
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const response = {
-        optimizedPrompt: `[ROLE: Prompt Optimization Expert] I need you to ${originalPrompt.trim()} and provide a thoroughly detailed explanation that breaks down complex concepts into easy-to-understand language. 
-
-FORMAT YOUR RESPONSE AS FOLLOWS:
-1. Start with a concise executive summary (200 words maximum)
-2. Then provide a detailed analysis with sections clearly marked by headings
-3. Include at least 3 specific examples to illustrate key points
-4. Conclude with actionable recommendations
-
-CONSTRAINTS:
-- Avoid technical jargon unless absolutely necessary
-- Keep sentences under 20 words for readability
-- Do NOT include any information about [topic to avoid]
-- Primary audience: intermediate level knowledge
-
-If aspects of my question remain unclear, please follow this reasoning process:
-Step 1: Identify ambiguous elements
-Step 2: Make reasonable assumptions based on context
-Step 3: Explain your assumptions in your response
-
-Would you please provide your response both as a comprehensive explanation and as a simplified summary table?`,
-        explanation: "Explanation of Improvements:\\n\\n1. **Clear & Specific Instructions**: Added explicit formatting instructions with numbered points and section requirements for a structured response.\\n\\n2. **Defined Output Format**: Specified exactly how the response should be formatted with executive summary, detailed analysis, examples, and recommendations.\\n\\n3. **Appropriate Tone and Style**: Maintained a formal, instructional tone appropriate for receiving expert information.\\n\\n4. **Context Provision**: Added '[ROLE: Prompt Optimization Expert]' to frame the response perspective.\\n\\n5. **Use of Examples**: Requested 'at least 3 specific examples' to illustrate key points.\\n\\n6. **Specified Length & Detail**: Constrained the executive summary to '200 words maximum' while requiring 'detailed analysis' for the main content.\\n\\n7. **Constraint Handling**: Added specific constraints about avoiding jargon, sentence length, and topics to avoid.\\n\\n8. **Roles Assignment**: Established the AI as a 'Prompt Optimization Expert' to frame the perspective.\\n\\n9. **Explicit Constraint Handling**: Clearly listed constraints under a dedicated section with bullet points.\\n\\n10. **Structured Response**: Required specific formatting with numbered lists, headings, and sections.\\n\\n11. **Chain-of-Thought Prompting**: Included a 3-step reasoning process for handling unclear aspects of the question.\\n\\n12. **Delimiters for Clarity**: Used headings like 'FORMAT YOUR RESPONSE AS FOLLOWS:' and 'CONSTRAINTS:' to separate instructions.\\n\\n13. **Priming or Context Seeding**: Specified the audience as having 'intermediate level knowledge' to calibrate explanation depth.\\n\\n14. **Conditional Instructions**: Provided instruction for what to do 'If aspects of my question remain unclear'.\\n\\n15. **Explicit Reasoning Requests**: Requested a reasoning process with 'Step 1, Step 2, Step 3' for handling ambiguity."
-      };
-      
-      resolve(response);
-    }, 1500);
-  });
-};
-
-// Function to optimize a prompt - try real API first, fall back to mock if API fails
-const optimizePrompt = async (prompt) => {
-  try {
-    console.log('Starting prompt optimization process');
+    console.error('Detailed error info:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+    });
     
-    try {
-      // First try the real OpenAI API
-      return await actualOptimizePrompt(prompt);
-    } catch (apiError) {
-      console.error('API call failed, falling back to mock:', apiError);
-      // Fall back to mock if API call fails
-      return await mockOptimizePrompt(prompt);
-    }
-  } catch (error) {
-    console.error('Error optimizing prompt:', error);
+    // Re-throw the error to be handled by the component
     throw error;
   }
 };

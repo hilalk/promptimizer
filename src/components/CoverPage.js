@@ -1,5 +1,16 @@
 import { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
+
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
 
 const CoverPageContainer = styled.div`
   width: 100%;
@@ -27,6 +38,9 @@ const Title = styled.h1`
   margin-bottom: 2rem;
   text-align: center;
   font-family: 'NoeDisplay-RegularItalic', serif;
+  opacity: 0;
+  animation: ${fadeIn} 0.8s ease-out forwards;
+  animation-delay: 0.3s;
   
   @media (max-width: 768px) {
     font-size: 8rem;
@@ -39,6 +53,9 @@ const Description = styled.p`
   text-align: center;
   max-width: 80rem;
   font-family: 'ESKlarheitKurrent-Rg', sans-serif;
+  opacity: 0;
+  animation: ${fadeIn} 0.8s ease-out forwards;
+  animation-delay: 0.8s;
   
   .klarheit {
     font-family: 'ESKlarheitKurrent-Rg', sans-serif;
@@ -59,6 +76,9 @@ const GetStartedButton = styled.button`
   text-transform: uppercase;
   cursor: pointer;
   transition: transform 0.2s ease;
+  opacity: 0;
+  animation: ${fadeIn} 0.8s ease-out forwards;
+  animation-delay: 1.3s;
   
   &:hover {
     transform: scale(0.95);
@@ -80,6 +100,9 @@ const Footer = styled.footer`
   align-items: center;
   font-family: 'ESKlarheitPlakat-Xbd', sans-serif;
   font-size: 2rem;
+  opacity: 0;
+  animation: ${fadeIn} 0.8s ease-out forwards;
+  animation-delay: 1.8s;
   
   .noe-italic {
     font-family: 'NoeDisplay-RegularItalic', sans-serif;
@@ -95,9 +118,16 @@ const Logo = styled.img`
 
 const CoverPage = ({ onGetStarted }) => {
   const [slideUp, setSlideUp] = useState(false);
+  const [animationsLoaded, setAnimationsLoaded] = useState(false);
   
   useEffect(() => {
     console.log('CoverPage mounted');
+    // Set animations as loaded after all animations complete
+    const timer = setTimeout(() => {
+      setAnimationsLoaded(true);
+    }, 2500); // Time after all animations have completed
+    
+    return () => clearTimeout(timer);
   }, []);
   
   const handleGetStarted = () => {

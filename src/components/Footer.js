@@ -38,7 +38,7 @@ const RightContent = styled.div`
 `;
 
 const Heart = styled.span`
-  color: red;
+  color: black;
   margin: 0 0.5rem;
 `;
 
@@ -46,7 +46,7 @@ const SocialIcon = styled.a`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: black;
   text-decoration: none;
   
   svg {
@@ -59,7 +59,7 @@ const Footer = () => {
   return (
     <FooterContainer>
       <LeftContent>
-        made with <Heart>♥</Heart> by <a href="https://penguinsfrompluto.com" target="_blank" rel="noopener noreferrer">Penguins from Pluto</a>
+        made with <Heart>♥</Heart> by&nbsp;<a href="https://penguinsfrompluto.com" target="_blank" rel="noopener noreferrer">Penguins from Pluto</a>
       </LeftContent>
       <RightContent>
         <SocialIcon href="https://www.linkedin.com/company/penguins-from-pluto?trk=public_post_feed-actor-name" target="_blank" rel="noopener noreferrer">

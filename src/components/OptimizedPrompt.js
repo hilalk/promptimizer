@@ -136,9 +136,22 @@ const OptimizedPrompt = ({ optimizedPrompt, explanation, onNewPrompt }) => {
     
     // Scroll to explanation if expanded
     if (newState && explanationRef.current) {
+      // Add a slightly longer delay to ensure the content has expanded
       setTimeout(() => {
-        explanationRef.current.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
+        // Get the height of the footer to account for it
+        const footerHeight = document.querySelector('footer')?.offsetHeight || 0;
+        // Get the position of the explanation content
+        const explanationRect = explanationRef.current.getBoundingClientRect();
+        // Calculate the scroll position to ensure the entire explanation is visible
+        // Add extra pixels to scroll further down
+        const scrollPosition = window.scrollY + explanationRect.top - 100;
+        
+        // Scroll to the calculated position
+        window.scrollTo({
+          top: scrollPosition,
+          behavior: 'smooth'
+        });
+      }, 300); // Longer delay to ensure the content has expanded
     }
   };
   

@@ -79,15 +79,21 @@ function App() {
     try {
       const result = await optimizePrompt(promptText);
       console.log('Optimization complete:', result);
+      
+      // Start the ColorGrid fade-out animation
       setIsFadingOut(true);
       
-      // Wait for the fade-out animation to complete before showing results
+      // Store the result but don't show it yet
+      setOptimizedResult(result);
+      
+      // Wait for ColorGrid fade-out animation (300ms) plus a small buffer (100ms)
+      // before transitioning to the result state
       setTimeout(() => {
-        setOptimizedResult(result);
-        setAppState('result');
         setShowLoadingGrid(false);
         setIsFadingOut(false);
-      }, 300); // Match timing with prompt-eng app
+        // Set appState to result last, which will trigger OptimizedPrompt to fade in
+        setAppState('result');
+      }, 400);
     } catch (error) {
       console.error('Optimization failed:', error);
       alert('Failed to optimize prompt. Please try again.');

@@ -1,5 +1,16 @@
 import { useState, useRef, useEffect } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
+
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
 
 const Container = styled.div`
   padding: 8rem 0rem;
@@ -9,6 +20,9 @@ const Container = styled.div`
   width: 100%;
   max-width: 120rem;
   margin: 0 auto;
+  opacity: 0;
+  animation: ${fadeIn} 0.8s ease-out forwards;
+  animation-delay: 0.3s; // Delay animation start to sync with ColorGrid fade-out
 `;
 
 const OptimizedText = styled.div`

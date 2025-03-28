@@ -22,7 +22,7 @@ const InputContainer = styled.div`
   align-items: center;
   justify-content: center;
   width: 100%;
-  padding: 4rem 2rem;
+  padding: 14rem 0;
   min-height: 20rem;
   position: relative;
 `;
@@ -56,7 +56,7 @@ const Cursor = styled.span`
 const StyledInput = styled.textarea`
   width: 100%;
   max-width: 100rem;
-  padding: 1.6rem;
+  
   font-size: 7rem;
   border: none;
   background: transparent;
@@ -76,8 +76,7 @@ const OptimizeButton = styled.button`
   display: flex;
   align-items: center;
   margin-top: 2rem;
-  align-self: flex-end;
-  padding: 1.6rem;
+  align-self: flex-start;
   border: 0.2rem solid black;
   border-radius: 0.6rem !important;
   background: transparent !important;
@@ -91,6 +90,7 @@ const OptimizeButton = styled.button`
   transform: ${props => props.$visible ? 'scale(1)' : 'scale(0.9)'};
   opacity: ${props => props.$visible ? '1' : '0'};
   pointer-events: ${props => props.$visible ? 'all' : 'none'};
+  padding: 1.6rem;
   
   &:hover {
     transform: scale(0.95);

@@ -1,159 +1,82 @@
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import * as d3 from 'd3';
 
-const ColorGridContainer = styled.div`
-  width: 100%;
-  height: 100vh;
+const GridContainer = styled.div`
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 10;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  width: 100vw;
+  height: 100vh;
+  display: grid;
+  grid-template-columns: repeat(${props => props.$gridWidth}, 1fr);
+  grid-template-rows: repeat(${props => props.$gridHeight}, 1fr);
+  z-index: ${props => props.$zIndex};
+`;
+
+const Cell = styled.div`
+  background-color: ${props => props.$color};
+  transition: background-color ${props => props.$transitionDuration}ms ${props => props.$transitionDelay}ms ease;
 `;
 
 const ColorGrid = ({ 
-  isVisible, 
-  onAnimationComplete,
-  gridWidth = 20,
-  gridHeight = 12,
-  colors = ['#00FFFF', '#FF00FF', '#FFFF00', '#000000', '#FFFFFF'],
-  transitionDuration = 200,
-  transitionDelay = 30,
+  gridWidth = 20, 
+  gridHeight = 12, 
+  colors = ['#00FFFF', '#FF00FF', '#FFFF00', '#000000', '#00FF33', '#FFFFFF'],
+  transitionDuration = 100,
+  transitionDelay = 100,
   finalColor = null,
-  onFinalColorComplete = null
+  onFinalColorComplete = () => {},
+  zIndex = -1
 }) => {
-  const svgRef = useRef(null);
-  
+  const [cells, setCells] = useState([]);
+
   useEffect(() => {
-    if (!isVisible || !svgRef.current) return;
-    
-    console.log('Starting ColorGrid animation', finalColor ? 'with final color' : 'with random colors');
-    
-    const svg = d3.select(svgRef.current);
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-    
-    // Set SVG dimensions
-    svg.attr('width', width).attr('height', height);
-    
-    // Calculate grid dimensions
-    const boxSize = 100;
-    const cols = Math.ceil(width / boxSize);
-    const rows = Math.ceil(height / boxSize);
-    
-    // Create grid data
-    const gridData = [];
-    for (let i = 0; i < rows; i++) {
-      for (let j = 0; j < cols; j++) {
-        gridData.push({
-          x: j * boxSize,
-          y: i * boxSize,
-          width: boxSize,
-          height: boxSize,
-          color: colors[Math.floor(Math.random() * colors.length)],
-          row: i,
-          col: j
+    // Initialize grid with random colors
+    const totalCells = gridWidth * gridHeight;
+    const initialCells = Array(totalCells).fill(null).map(() => {
+      return colors[Math.floor(Math.random() * colors.length)];
+    });
+    setCells(initialCells);
+
+    // Set up color change interval if no finalColor is specified
+    if (!finalColor) {
+      const interval = setInterval(() => {
+        setCells(prevCells => {
+          return prevCells.map(() => colors[Math.floor(Math.random() * colors.length)]);
         });
-      }
+      }, transitionDuration + transitionDelay);
+
+      return () => clearInterval(interval);
     }
-    
-    // Create grid squares
-    const squares = svg.selectAll('rect')
-      .data(gridData)
-      .enter()
-      .append('rect')
-      .attr('x', d => d.x)
-      .attr('y', d => d.y)
-      .attr('width', d => d.width)
-      .attr('height', d => d.height)
-      .attr('fill', d => d.color);
-    
-    // Animation function to change colors with a wave effect
-    function animateRandomColors() {
-      squares
-        .transition()
-        .duration(transitionDuration)
-        .delay(d => d.row * 20) // Wave effect based on row
-        .attr('fill', () => colors[Math.floor(Math.random() * colors.length)])
-        .on('end', function(d, i) {
-          if (i === 0) { // Only trigger on the first element
-            if (!finalColor) {
-              setTimeout(animateRandomColors, transitionDelay);
-            }
-          }
-        });
-    }
-    
-    // Function to transition to final color with wave effect
-    function transitionToFinalColor() {
-      console.log('Transitioning to final color:', finalColor);
-      
-      let transitionEndCount = 0;
-      const totalSquares = gridData.length;
-      
-      squares
-        .transition()
-        .duration(500)
-        .delay(d => d.row * 20) // Changed to top-to-bottom only pattern
-        .attr('fill', finalColor)
-        .on('end', function() {
-          transitionEndCount++;
-          // Call the callback when all transitions have completed
-          if (transitionEndCount >= totalSquares) {
-            console.log('Final color transition complete - all squares transitioned');
-            if (onFinalColorComplete) {
-              onFinalColorComplete();
-            }
-          }
-        });
-    }
-    
-    // Start the animation sequence
+  }, [colors, gridWidth, gridHeight, transitionDuration, transitionDelay]);
+
+  // Handle transition to final color
+  useEffect(() => {
     if (finalColor) {
-      // Directly transition to final color with wave effect
-      console.log('Starting final color transition with wave effect');
-      transitionToFinalColor();
-      
-      // Add a safety timeout to ensure callback is called even if transitions don't complete
-      const safetyTimer = setTimeout(() => {
-        console.log('Safety timeout triggered for final color transition');
-        if (onFinalColorComplete) {
-          onFinalColorComplete();
-        }
-      }, 3000); // 3 second safety timeout
-      
-      // Return cleanup function
-      return () => {
-        console.log('Cleaning up safety timer');
-        clearTimeout(safetyTimer);
-      };
-    } else {
-      // Start random color animation
-      animateRandomColors();
-      
-      // Set timeout to complete animation
-      const timer = setTimeout(() => {
-        console.log('ColorGrid random animation complete');
-        if (onAnimationComplete) {
-          onAnimationComplete();
-        }
-      }, 2000); // Animation runs for 2 seconds
-      
-      // Return cleanup function
-      return () => clearTimeout(timer);
+      setCells(prev => prev.map(() => finalColor));
+      // Call the completion callback after the transition
+      const timeout = setTimeout(() => {
+        onFinalColorComplete();
+      }, transitionDuration + transitionDelay);
+      return () => clearTimeout(timeout);
     }
-  }, [isVisible, onAnimationComplete, gridWidth, gridHeight, colors, 
-      transitionDuration, transitionDelay, finalColor, onFinalColorComplete]);
-  
-  if (!isVisible) return null;
-  
+  }, [finalColor, transitionDuration, transitionDelay, onFinalColorComplete]);
+
   return (
-    <ColorGridContainer>
-      <svg ref={svgRef}></svg>
-    </ColorGridContainer>
+    <GridContainer 
+      $gridWidth={gridWidth} 
+      $gridHeight={gridHeight}
+      $zIndex={zIndex}
+    >
+      {cells.map((color, index) => (
+        <Cell
+          key={index}
+          $color={color}
+          $transitionDuration={transitionDuration}
+          $transitionDelay={transitionDelay}
+        />
+      ))}
+    </GridContainer>
   );
 };
 

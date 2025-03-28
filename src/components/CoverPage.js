@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
+import ColorGrid from './ColorGrid';
 
 const fadeIn = keyframes`
   from {
@@ -30,7 +31,6 @@ const CoverPageContainer = styled.div`
   background-image: url('/assets/images/bg.png');
   background-size: cover;
   background-position: center;
-  background-color: transparent;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -138,7 +138,7 @@ const Footer = styled.footer`
   animation-delay: 1.2s;
   
   .noe-italic {
-    font-family: 'NoeDisplay-RegularItalic', sans-serif;
+    font-family: 'NoeDisplay-RegularItalic', serif;
     font-size: 2.3rem;
     margin-left: 5px;
   }
@@ -149,10 +149,12 @@ const Logo = styled.img`
   margin-left: 0.5rem;
 `;
 
-const CoverPage = ({ onComplete, onGetStarted, onPreloadContent }) => {
+const CoverPage = ({ onComplete, onPreloadContent, onGetStarted }) => {
   const [isAnimating, setIsAnimating] = useState(false);
-  const [isButtonVisible, setIsButtonVisible] = useState(true);
+  const [isButtonVisible, setIsButtonVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showColorGrid, setShowColorGrid] = useState(true);
+  const [finalColor, setFinalColor] = useState(null);
   
   // Preload content as soon as component mounts
   useEffect(() => {
@@ -186,40 +188,59 @@ const CoverPage = ({ onComplete, onGetStarted, onPreloadContent }) => {
     if (isButtonVisible && !isLoading) {
       setIsAnimating(true);
       
-      // Wait for slide-up animation to complete then call onComplete
+      // Add a small delay before starting the color transition
       setTimeout(() => {
-        console.log('Slide-up animation complete, calling onComplete');
-        if (onComplete) {
-          onComplete();
-        }
-        
-        // Also call the legacy onGetStarted for backward compatibility
-        if (onGetStarted) {
-          onGetStarted();
-        }
+        setFinalColor('#FF00FF');
+      }, 500);  // Wait 500ms before starting color transition
+      
+      // Call onComplete immediately to start the app transition
+      if (onComplete) {
+        onComplete();
+      }
+      
+      // Wait for fade out animation to complete before removing color grid
+      setTimeout(() => {
+        setShowColorGrid(false);
       }, 1000);
     }
   };
+
+  const handleColorGridComplete = () => {
+    setShowColorGrid(false);
+  };
   
   return (
-    <CoverPageContainer $isAnimating={isAnimating}>
-      <Title>Promptimizer</Title>
-      <Description>Promptimizer optimizes your prompt to AI tools for better results.
+    <>
+      {showColorGrid && (
+        <ColorGrid
+          colors={['#00FFFF', '#FF00FF', '#FFFF00', '#000000', '#00FF33', '#FFFFFF']}
+          transitionDuration={500}
+          transitionDelay={200}
+          finalColor={finalColor}
+          onFinalColorComplete={handleColorGridComplete}
+          zIndex={999}
+        />
+      )}
+      <CoverPageContainer $isAnimating={isAnimating}>
+        <Title>Promptimizer</Title>
+        <Description>
+          Promptimizer optimizes your prompt to AI tools for better results.
           <br /> Simply enter your prompt and see the magic happen.
-      </Description>
-      <ButtonArea>
-        {isButtonVisible && (
-          <GetStartedButton onClick={handleGetStarted}>
-            Get Started
-          </GetStartedButton>
-        )}
-      </ButtonArea>
-      <Footer>
-        <span>AI Experiment</span>
-        <span className="noe-italic"> by </span>
-        <Logo src="/assets/images/logo.svg" alt="Penguins from Pluto Logo" />
-      </Footer>
-    </CoverPageContainer>
+        </Description>
+        <ButtonArea>
+          {isButtonVisible && (
+            <GetStartedButton onClick={handleGetStarted}>
+              Get Started
+            </GetStartedButton>
+          )}
+        </ButtonArea>
+        <Footer>
+          <span>AI Experiment</span>
+          <span className="noe-italic"> by </span>
+          <Logo src="/assets/images/logo.svg" alt="Penguins from Pluto Logo" />
+        </Footer>
+      </CoverPageContainer>
+    </>
   );
 };
 

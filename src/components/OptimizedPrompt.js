@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 
 const Container = styled.div`
-  padding: 4rem 2rem;
+  padding: 8rem 0rem;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -13,7 +13,6 @@ const Container = styled.div`
 
 const OptimizedText = styled.div`
   width: 100%;
-
   font-size: 7rem;
   font-family: 'Agdasima', sans-serif;
   margin-bottom: 2rem;
@@ -26,11 +25,22 @@ const ButtonsContainer = styled.div`
   justify-content: space-between;
   width: 100%;
   margin-top: 2rem;
+  
+  @media (max-width: 768px) {
+    flex-direction: column-reverse;
+    gap: 3rem;
+  }
 `;
 
 const ActionButtons = styled.div`
   display: flex;
   gap: 2rem;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    width: 100%;
+    align-items: stretch;
+  }
 `;
 
 const ToggleButton = styled.button`
@@ -44,6 +54,11 @@ const ToggleButton = styled.button`
   transition: transform 0.2s ease;
   display: flex;
   align-items: center;
+  
+  @media (max-width: 768px) {
+    align-self: flex-start;
+    font-size:4rem;
+  }
   
   &:hover {
     transform: scale(0.95);
@@ -61,6 +76,7 @@ const ToggleButton = styled.button`
 const PrimaryButton = styled.button`
   display: flex;
   align-items: center;
+  justify-content: center;
   padding: 1.6rem;
   border: 0.2rem solid black;
   border-radius: 0.5rem !important;
@@ -72,6 +88,12 @@ const PrimaryButton = styled.button`
   font-size: 3rem;
   cursor: pointer;
   transition: transform 0.2s ease;
+  
+  @media (max-width: 768px) {
+    width: 100%;
+    margin-bottom: 1rem;
+    font-size: 4rem;
+  }
   
   &:hover {
     transform: scale(0.95);
@@ -90,19 +112,19 @@ const PrimaryButton = styled.button`
 
 const ExplanationContainer = styled.div`
   width: 100%;
-  max-height: ${props => props.expanded ? '200rem' : '0'};
+  max-height: ${props => props.expanded ? '800rem' : '0'};
   overflow: hidden;
   transition: max-height 0.5s ease-in-out;
   margin-top: ${props => props.expanded ? '2rem' : '0'};
 `;
 
 const ExplanationContent = styled.div`
-  font-size: 2rem;
   font-family: 'ESKlarheitKurrent-Rg', sans-serif;
   white-space: pre-wrap;
   line-height: 1.5;
   margin-top: 6rem;
   border-top: 0.2rem solid black;
+  padding-top: 4rem;
   
   .explanation-title {
     font-weight: bold;
@@ -114,7 +136,7 @@ const ExplanationContent = styled.div`
   }
   
   .explanation-description {
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
     display: block;
     font-family: 'Agdasima', sans-serif;
     font-size: 4rem;

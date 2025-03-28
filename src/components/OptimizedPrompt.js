@@ -13,11 +13,9 @@ const Container = styled.div`
 
 const OptimizedText = styled.div`
   width: 100%;
-  padding: 2rem;
-  background-color: white;
-  border: 0.2rem solid black;
-  font-size: 2rem;
-  font-family: 'ESKlarheitKurrent-Rg', sans-serif;
+
+  font-size: 7rem;
+  font-family: 'Agdasima', sans-serif;
   margin-bottom: 2rem;
   white-space: pre-wrap;
   line-height: 1.5;
@@ -41,7 +39,7 @@ const ToggleButton = styled.button`
   text-decoration: underline;
   text-transform: uppercase;
   font-family: 'Agdasima', sans-serif;
-  font-size: 2rem;
+  font-size: 3rem;
   cursor: pointer;
   transition: transform 0.2s ease;
   display: flex;
@@ -65,13 +63,13 @@ const PrimaryButton = styled.button`
   align-items: center;
   padding: 1.6rem;
   border: 0.2rem solid black;
-  border-radius: 0.2rem !important;
+  border-radius: 0.5rem !important;
   background: transparent !important;
   background-color: transparent !important;
   background-image: none !important;
   text-transform: uppercase;
   font-family: 'Agdasima', sans-serif;
-  font-size: 2rem;
+  font-size: 3rem;
   cursor: pointer;
   transition: transform 0.2s ease;
   
@@ -99,13 +97,28 @@ const ExplanationContainer = styled.div`
 `;
 
 const ExplanationContent = styled.div`
-  padding: 2rem;
-  background-color: white;
-  border: 0.2rem solid black;
-  font-size: 1.6rem;
+  font-size: 2rem;
   font-family: 'ESKlarheitKurrent-Rg', sans-serif;
   white-space: pre-wrap;
   line-height: 1.5;
+  margin-top: 6rem;
+  border-top: 0.2rem solid black;
+  
+  .explanation-title {
+    font-weight: bold;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    display: block;
+    font-size: 4rem;
+    font-family: 'Agdasima', sans-serif;
+  }
+  
+  .explanation-description {
+    margin-bottom: 3rem;
+    display: block;
+    font-family: 'Agdasima', sans-serif;
+    font-size: 4rem;
+  }
 `;
 
 const OptimizedPrompt = ({ optimizedPrompt, explanation, onNewPrompt }) => {
@@ -146,9 +159,6 @@ const OptimizedPrompt = ({ optimizedPrompt, explanation, onNewPrompt }) => {
       
       <ButtonsContainer>
         <ToggleButton onClick={handleToggleExplanation}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 16L7 11H17L12 16Z" fill="currentColor" />
-          </svg>
           WHY IS THIS PROMPT BETTER?
         </ToggleButton>
         
@@ -176,7 +186,20 @@ const OptimizedPrompt = ({ optimizedPrompt, explanation, onNewPrompt }) => {
       </ButtonsContainer>
       
       <ExplanationContainer expanded={isExplanationExpanded} ref={explanationRef}>
-        <ExplanationContent dangerouslySetInnerHTML={{ __html: explanation.replace(/\\n/g, '<br/>') }} />
+        <ExplanationContent 
+          dangerouslySetInnerHTML={{ 
+            __html: explanation
+              // Extract only the numbered items with proper titles and descriptions
+              .match(/\d+\. \*\*.*?\*\*:[\s\S]*?(?=\d+\. \*\*|$)/g)
+              ?.map(item => {
+                const match = item.match(/\d+\. \*\*(.*?)\*\*: ([\s\S]*)/);
+                if (!match) return '';
+                const [_, title, description] = match;
+                return `<span class="explanation-title">${title}</span><span class="explanation-description">${description.trim()}</span>`;
+              })
+              .join('') || ''
+          }} 
+        />
       </ExplanationContainer>
     </Container>
   );

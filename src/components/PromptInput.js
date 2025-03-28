@@ -79,13 +79,13 @@ const OptimizeButton = styled.button`
   align-self: flex-end;
   padding: 1.6rem;
   border: 0.2rem solid black;
-  border-radius: 0.2rem !important;
+  border-radius: 0.6rem !important;
   background: transparent !important;
   background-color: transparent !important;
   background-image: none !important;
   text-transform: uppercase;
   font-family: 'Agdasima', sans-serif;
-  font-size: 2rem;
+  font-size: 3rem;
   cursor: pointer;
   transition: transform 0.2s ease, opacity 0.3s ease;
   transform: ${props => props.$visible ? 'scale(1)' : 'scale(0.9)'};
@@ -236,11 +236,9 @@ const PromptInput = ({ onOptimize, shouldStartAnimation = false }) => {
           <OptimizeButton 
             $visible={true}
             onClick={handleOptimize}
-            style={{ borderRadius: '0.2rem' }}
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 16L7 11H17L12 16Z" fill="currentColor" />
-              <path d="M12 8L17 13H7L12 8Z" fill="currentColor" />
+            <svg width="24" height="24" viewBox="0 0 47 41" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ marginRight: '1rem' }}>
+              <path d="M44.5547 1.75L44.5547 29.088L2.02734 29.088M2.02734 29.088L11.7346 17.606M2.02734 29.088L11.7346 38.7958" stroke="black" strokeWidth="3" strokeLinecap="round"/>
             </svg>
             Optimize
           </OptimizeButton>

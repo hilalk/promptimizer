@@ -57,7 +57,7 @@ const GlobalStyles = createGlobalStyle`
     display: flex;
     align-items: center;
     padding: 1.6rem;
-    border: 0.2rem solid black;
+    border: 0.6rem solid black !important;
     border-radius: 0.2rem;
     background-color: transparent;
     text-transform: uppercase;

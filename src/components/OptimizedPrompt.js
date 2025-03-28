@@ -191,11 +191,19 @@ const OptimizedPrompt = ({ optimizedPrompt, explanation, onNewPrompt }) => {
     }
   };
   
+  const [copyButtonText, setCopyButtonText] = useState('Copy');
+  
   const handleCopyToClipboard = () => {
     console.log('Copying to clipboard');
     navigator.clipboard.writeText(optimizedPrompt)
       .then(() => {
-        alert('Copied to clipboard!');
+        // Change button text to 'Copied' temporarily
+        setCopyButtonText('Copied!');
+        
+        // Reset button text after 2 seconds
+        setTimeout(() => {
+          setCopyButtonText('Copy');
+        }, 2000);
       })
       .catch(err => {
         console.error('Failed to copy text: ', err);
@@ -219,7 +227,7 @@ const OptimizedPrompt = ({ optimizedPrompt, explanation, onNewPrompt }) => {
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M16 1H4C2.9 1 2 1.9 2 3V17H4V3H16V1ZM19 5H8C6.9 5 6 5.9 6 7V21C6 22.1 6.9 23 8 23H19C20.1 23 21 22.1 21 21V7C21 5.9 20.1 5 19 5ZM19 21H8V7H19V21Z" fill="currentColor" />
             </svg>
-            Copy
+            {copyButtonText}
           </PrimaryButton>
           
           <PrimaryButton 

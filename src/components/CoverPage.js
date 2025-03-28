@@ -13,15 +13,6 @@ const fadeIn = keyframes`
   }
 `;
 
-const fadeInBg = keyframes`
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-`;
-
 const hover = keyframes`
   0% {
     transform: translateY(0);
@@ -49,8 +40,7 @@ const CoverPageContainer = styled.div`
   transition: transform 1s ease;
   transform: ${props => props.$isAnimating ? 'translateY(-100%)' : 'translateY(0)'};
   position: relative;
-  overflow: hidden;
-  animation: ${fadeInBg} 0.8s ease;
+  overflow-y: hidden;
 `;
 
 const Content = styled.div`
@@ -180,6 +170,19 @@ const CoverPage = ({ onComplete, onPreloadContent, onGetStarted }) => {
   const descriptionRef = useRef(null);
   const contentRef = useRef(null);
   
+  // Prevent scrolling when CoverPage is visible
+  useEffect(() => {
+    // Add no-scroll class to body when component mounts
+    document.body.classList.add('no-scroll');
+    
+    // Remove no-scroll class when component unmounts or animates out
+    return () => {
+      if (isAnimating) {
+        document.body.classList.remove('no-scroll');
+      }
+    };
+  }, [isAnimating]);
+  
   // Log element dimensions on render and changes
   useEffect(() => {
     const logDimensions = () => {
@@ -259,8 +262,7 @@ const CoverPage = ({ onComplete, onPreloadContent, onGetStarted }) => {
         setIsButtonVisible(false); // Don't show button yet
         setIsLoading(false);
         
-        // First let the background fade in
-        // Then enable content animations after background is visible
+        // Then enable animations after a short delay to ensure layout is stable
         setTimeout(() => {
           setAnimationsEnabled(true);
           console.log('Content preloaded, animations enabled');
@@ -270,7 +272,7 @@ const CoverPage = ({ onComplete, onPreloadContent, onGetStarted }) => {
             setIsButtonVisible(true);
             console.log('Button visible');
           }, 800);
-        }, 800); // Delay content animations to let background fade in first
+        }, 10);
       } catch (error) {
         console.error('Error preloading content:', error);
         // Show button anyway if there's an error
@@ -289,6 +291,9 @@ const CoverPage = ({ onComplete, onPreloadContent, onGetStarted }) => {
     // Only animate if button is visible and not in loading state
     if (isButtonVisible && !isLoading) {
       setIsAnimating(true);
+      
+      // Explicitly remove no-scroll class when animation starts
+      document.body.classList.remove('no-scroll');
       
       // Add a small delay before starting the color transition
       setTimeout(() => {

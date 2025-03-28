@@ -116,6 +116,20 @@ const GlobalStyles = createGlobalStyle`
     color: blue;
     font-weight: bold;
   }
+  
+  /* Animation for fade-in effect */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  /* Utility class to prevent scrolling */
+  .no-scroll {
+    overflow: hidden !important;
+    height: 100% !important;
+    position: fixed !important;
+    width: 100% !important;
+  }
 `;
 
 export default GlobalStyles; 

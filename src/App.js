@@ -183,7 +183,7 @@ function App() {
           )}
         </ContentContainer>
         
-        {appReady && !showCover && <Footer />}
+        {appReady && !showCover && <Footer currentPage={appState === 'result' ? 'result' : 'input'} />}
       </AppContainer>
     </>
   );

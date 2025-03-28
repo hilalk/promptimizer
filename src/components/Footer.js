@@ -13,7 +13,7 @@ const FooterContainer = styled.footer`
   border-top: 0.2rem solid black;
   font-family: 'ESKlarheitPlakat-Xbd', sans-serif;
   font-size: 1.5rem;
-  background-color: transparent;
+  background-color: ${props => props.$currentPage === 'result' ? '#FFFF00' : '#FF00FF'};
   z-index: 5;
 `;
 
@@ -55,9 +55,9 @@ const SocialIcon = styled.a`
   }
 `;
 
-const Footer = () => {
+const Footer = ({ currentPage = 'input' }) => {
   return (
-    <FooterContainer>
+    <FooterContainer $currentPage={currentPage}>
       <LeftContent>
         made with <Heart>♥</Heart> by&nbsp;<a href="https://penguinsfrompluto.com" target="_blank" rel="noopener noreferrer">Penguins from Pluto</a>
       </LeftContent>

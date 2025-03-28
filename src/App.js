@@ -3,6 +3,7 @@ import styled, { keyframes } from 'styled-components';
 import GlobalStyles from './GlobalStyles';
 import CoverPage from './components/CoverPage';
 import ColorGrid from './components/ColorGrid';
+import YellowColorGrid from './components/YellowColorGrid';
 import PromptInput from './components/PromptInput';
 import OptimizedPrompt from './components/OptimizedPrompt';
 import Footer from './components/Footer';
@@ -102,14 +103,14 @@ function App() {
       // Store the result but don't show it yet
       setOptimizedResult(result);
       
-      // Wait for ColorGrid fade-out animation (300ms) plus a small buffer (100ms)
+      // Wait for ColorGrid fade-out animation (600ms) plus a small buffer (200ms)
       // before transitioning to the result state
       setTimeout(() => {
         setShowLoadingGrid(false);
         setIsFadingOut(false);
         // Set appState to result last, which will trigger OptimizedPrompt to fade in
         setAppState('result');
-      }, 400);
+      }, 800);  /* Increased to match the longer animation duration */
     } catch (error) {
       console.error('Optimization failed:', error);
       alert('Failed to optimize prompt. Please try again.');
@@ -140,13 +141,13 @@ function App() {
       <GlobalStyles />
       <AppBackground $bgColor={bgColor} />
       <AppContainer $bgColor={bgColor}>
-        {/* The loading color grid */}
+        {/* The loading color grid - using YellowColorGrid for bottom-to-top animation */}
         {showLoadingGrid && (
           <ColorGridWrapper>
-            <ColorGrid
+            <YellowColorGrid
               colors={['#00FFFF', '#FF00FF', '#FFFF00', '#000000', '#00FF33', '#FFFFFF']}
-              transitionDuration={100}
-              transitionDelay={100}
+              transitionDuration={300}  /* Increased for more graceful animation */
+              transitionDelay={200}     /* Increased to allow more time between color changes */
               zIndex={998}
               finalColor={isFadingOut ? '#FFFF00' : null}
             />

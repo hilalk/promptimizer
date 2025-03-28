@@ -52,6 +52,11 @@ const Content = styled.div`
   color: #fff;
   width: 100%;
   max-width: 800px;
+  padding: 0 1rem;
+  
+  @media (max-width: 480px) {
+    width: 95%;
+  }
 `;
 
 const Title = styled.h1`
@@ -63,7 +68,16 @@ const Title = styled.h1`
   animation-fill-mode: both;
   
   @media (max-width: 768px) {
+    font-size: 5rem;
+  }
+  
+  @media (max-width: 480px) {
     font-size: 3rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  @media (max-width: 360px) {
+    font-size: 2.5rem;
   }
 `;
 
@@ -77,11 +91,25 @@ const Description = styled.p`
   animation: ${fadeIn} 0.8s ease;
   animation-delay: 0.3s;
   animation-fill-mode: both;
+  padding: 0 1rem;
   
   @media (max-width: 768px) {
+    font-size: 1.1rem;
+    max-width: 90%;
+    margin: 0 auto 2rem;
+    font-size: 1.4rem;
+  }
+  
+  @media (max-width: 480px) {
     font-size: 1rem;
-    max-width: 100%;
-    margin-bottom: 2rem;
+    max-width: 95%;
+    margin-bottom: 1.5rem;
+    line-height: 1.4;
+  }
+  
+  @media (max-width: 360px) {
+    font-size: 0.95rem;
+    margin-bottom: 1.25rem;
   }
 `;
 
@@ -94,15 +122,16 @@ const ButtonArea = styled.div`
 `;
 
 const GetStartedButton = styled.button`
-  background: transparent;
+  background: white;
   border: 1px solid #fff;
+  color: black;
   cursor: pointer;
   padding: 14px 16px;
   display: flex;
   align-items: center;
   gap: 16px;
   transition: transform 0.2s ease, opacity 0.3s ease;
-  border-radius: 6px;
+  border-radius: 50px;
   transform-origin: center;
   margin: 0 auto;
   animation: ${fadeIn} 0.8s ease, ${hover} 1s ease-in-out infinite;
@@ -125,8 +154,18 @@ const GetStartedButton = styled.button`
   }
 
   @media (max-width: 768px) {
-    font-size: 1rem;
+    font-size: 1.1rem;
     padding: 12px 24px;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 1rem;
+    padding: 10px 20px;
+  }
+  
+  @media (max-width: 360px) {
+    font-size: 0.95rem;
+    padding: 10px 18px;
   }
 `;
 
@@ -151,11 +190,50 @@ const Footer = styled.footer`
     font-size: 2.3rem;
     margin-left: 5px;
   }
+  
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+    font-size: 1.75rem;
+    
+    .noe-italic {
+      font-size: 2rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    padding: 1rem;
+    font-size: 1.5rem;
+    
+    .noe-italic {
+      font-size: 1.75rem;
+    }
+  }
+  
+  @media (max-width: 360px) {
+    padding: 0.75rem;
+    font-size: 1.25rem;
+    
+    .noe-italic {
+      font-size: 1.5rem;
+    }
+  }
 `;
 
 const Logo = styled.img`
   height: 2.5rem;
   margin-left: 0.5rem;
+  
+  @media (max-width: 768px) {
+    height: 2.25rem;
+  }
+  
+  @media (max-width: 480px) {
+    height: 2rem;
+  }
+  
+  @media (max-width: 360px) {
+    height: 1.75rem;
+  }
 `;
 
 const CoverPage = ({ onComplete, onPreloadContent, onGetStarted }) => {

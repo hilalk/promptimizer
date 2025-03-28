@@ -47,6 +47,7 @@ function App() {
   const [appReady, setAppReady] = useState(false);
   const [isInitialTransitionComplete, setIsInitialTransitionComplete] = useState(false);
   const [showLoadingGrid, setShowLoadingGrid] = useState(false);
+  const [isFadingOut, setIsFadingOut] = useState(false);
   
   useEffect(() => {
     console.log('App mounted');
@@ -72,19 +73,26 @@ function App() {
     console.log('Optimizing prompt...');
     setAppState('loading');
     setShowLoadingGrid(true);
+    setIsFadingOut(false);
     setBgColor('#FFFF00'); // Change background to yellow during optimization
     
     try {
       const result = await optimizePrompt(promptText);
       console.log('Optimization complete:', result);
-      setOptimizedResult(result);
-      setAppState('result');
+      setIsFadingOut(true);
+      
+      // Wait for the fade-out animation to complete before showing results
+      setTimeout(() => {
+        setOptimizedResult(result);
+        setAppState('result');
+        setShowLoadingGrid(false);
+        setIsFadingOut(false);
+      }, 300); // Match timing with prompt-eng app
     } catch (error) {
       console.error('Optimization failed:', error);
       alert('Failed to optimize prompt. Please try again.');
       setAppState('input');
       setBgColor('#FF00FF'); // Reset background color
-    } finally {
       setShowLoadingGrid(false);
     }
   };
@@ -117,6 +125,7 @@ function App() {
             transitionDuration={100}
             transitionDelay={100}
             zIndex={998}
+            finalColor={isFadingOut ? '#FFFF00' : null}
           />
         )}
         

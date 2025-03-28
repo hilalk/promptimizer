@@ -1,83 +1,110 @@
-import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
+import { useEffect, useRef } from 'react';
+import * as d3 from 'd3';
 
-const GridContainer = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  display: grid;
-  grid-template-columns: repeat(${props => props.$gridWidth}, 1fr);
-  grid-template-rows: repeat(${props => props.$gridHeight}, 1fr);
-  z-index: ${props => props.$zIndex};
-`;
-
-const Cell = styled.div`
-  background-color: ${props => props.$color};
-  transition: background-color ${props => props.$transitionDuration}ms ${props => props.$transitionDelay}ms ease;
-`;
-
-const ColorGrid = ({ 
-  gridWidth = 20, 
-  gridHeight = 12, 
+const ColorGrid = ({
+  gridWidth = 20,
+  gridHeight = 12,
   colors = ['#00FFFF', '#FF00FF', '#FFFF00', '#000000', '#00FF33', '#FFFFFF'],
-  transitionDuration = 100,
-  transitionDelay = 100,
+  transitionDuration = 200,
+  transitionDelay = 30,
   finalColor = null,
-  onFinalColorComplete = () => {},
+  onFinalColorComplete = null,
   zIndex = -1
 }) => {
-  const [cells, setCells] = useState([]);
+  const svgRef = useRef(null);
 
   useEffect(() => {
-    // Initialize grid with random colors
-    const totalCells = gridWidth * gridHeight;
-    const initialCells = Array(totalCells).fill(null).map(() => {
-      return colors[Math.floor(Math.random() * colors.length)];
-    });
-    setCells(initialCells);
+    if (!svgRef.current) return;
 
-    // Set up color change interval if no finalColor is specified
-    if (!finalColor) {
-      const interval = setInterval(() => {
-        setCells(prevCells => {
-          return prevCells.map(() => colors[Math.floor(Math.random() * colors.length)]);
+    // Store the current ref in a variable to use in cleanup
+    const svg = svgRef.current;
+
+    // Clear any existing content
+    d3.select(svg).selectAll('*').remove();
+
+    // Create the grid of rectangles
+    const boxes = [];
+    for (let y = 0; y < gridHeight; y++) {
+      for (let x = 0; x < gridWidth; x++) {
+        boxes.push({
+          x: (x / gridWidth) * 100,
+          y: (y / gridHeight) * 100,
+          width: (1 / gridWidth) * 100,
+          height: (1 / gridHeight) * 100
         });
-      }, transitionDuration + transitionDelay);
-
-      return () => clearInterval(interval);
+      }
     }
-  }, [colors, gridWidth, gridHeight, transitionDuration, transitionDelay]);
 
-  // Handle transition to final color
-  useEffect(() => {
-    if (finalColor) {
-      setCells(prev => prev.map(() => finalColor));
-      // Call the completion callback after the transition
-      const timeout = setTimeout(() => {
-        onFinalColorComplete();
-      }, transitionDuration + transitionDelay);
-      return () => clearTimeout(timeout);
+    // Add rectangles to the SVG
+    const rectangles = d3.select(svg)
+      .selectAll('rect')
+      .data(boxes)
+      .enter()
+      .append('rect')
+      .attr('x', (d) => d.x + '%')
+      .attr('y', (d) => d.y + '%')
+      .attr('width', (d) => d.width + '%')
+      .attr('height', (d) => d.height + '%')
+      .style('fill', () => colors[Math.floor(Math.random() * colors.length)]);
+
+    // Function to update colors
+    function updateColors() {
+      if (finalColor) {
+        // Create a wave-like transition based on position
+        rectangles.each(function(d, i) {
+          const y = Math.floor(i / gridWidth);
+          
+          d3.select(this)
+            .transition()
+            .delay(y * 20) // Delay based on vertical position only
+            .duration(transitionDuration)
+            .style('fill', finalColor)
+            .on('end', function() {
+              if (i === 0 && onFinalColorComplete) {
+                onFinalColorComplete();
+              }
+            });
+        });
+        return;
+      }
+
+      rectangles
+        .transition()
+        .duration(transitionDuration)
+        .style('fill', () => colors[Math.floor(Math.random() * colors.length)])
+        .on('end', function() {
+          // Only trigger the next update from one rectangle to avoid multiple intervals
+          if (d3.select(this).attr('x') === '0%') {
+            setTimeout(updateColors, transitionDelay);
+          }
+        });
     }
-  }, [finalColor, transitionDuration, transitionDelay, onFinalColorComplete]);
+
+    // Start the animation
+    updateColors();
+
+    // Cleanup function
+    return () => {
+      // Clear any pending transitions and timeouts
+      d3.select(svg).selectAll('*').interrupt();
+    };
+  }, [gridWidth, gridHeight, colors, transitionDuration, transitionDelay, finalColor, onFinalColorComplete]);
 
   return (
-    <GridContainer 
-      $gridWidth={gridWidth} 
-      $gridHeight={gridHeight}
-      $zIndex={zIndex}
-    >
-      {cells.map((color, index) => (
-        <Cell
-          key={index}
-          $color={color}
-          $transitionDuration={transitionDuration}
-          $transitionDelay={transitionDelay}
-        />
-      ))}
-    </GridContainer>
+    <svg
+      ref={svgRef}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100vh',
+        display: 'block',
+        zIndex: zIndex,
+        overflow: 'hidden'
+      }}
+    />
   );
 };
 
-export default ColorGrid; 
+export default ColorGrid;

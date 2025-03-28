@@ -30,6 +30,7 @@ const GlobalStyles = createGlobalStyle`
 
   html {
     font-size: 62.5%; /* 1rem = 10px */
+    overflow-x: hidden;
   }
 
   body {
@@ -38,6 +39,7 @@ const GlobalStyles = createGlobalStyle`
     min-height: 100vh;
     position: relative;
     padding-bottom: 6rem; /* Space for footer */
+    overflow-x: hidden;
   }
   
   /* Force all buttons to have border-radius */

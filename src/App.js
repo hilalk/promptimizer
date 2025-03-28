@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import GlobalStyles from './GlobalStyles';
 import CoverPage from './components/CoverPage';
 import ColorGrid from './components/ColorGrid';
@@ -27,6 +27,11 @@ const ContentContainer = styled.div`
   z-index: 1;
 `;
 
+const fadeIn = keyframes`
+  from { opacity: 0; }
+  to { opacity: 1; }
+`;
+
 const AppBackground = styled.div`
   position: fixed;
   top: 0;
@@ -36,6 +41,17 @@ const AppBackground = styled.div`
   background-color: ${props => props.$bgColor};
   transition: background-color 0.5s ease;
   z-index: 0;
+`;
+
+const ColorGridWrapper = styled.div`
+  opacity: 0;
+  animation: ${fadeIn} 0.5s ease-in forwards;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 998;
 `;
 
 function App() {
@@ -126,13 +142,15 @@ function App() {
       <AppContainer $bgColor={bgColor}>
         {/* The loading color grid */}
         {showLoadingGrid && (
-          <ColorGrid
-            colors={['#00FFFF', '#FF00FF', '#FFFF00', '#000000', '#00FF33', '#FFFFFF']}
-            transitionDuration={100}
-            transitionDelay={100}
-            zIndex={998}
-            finalColor={isFadingOut ? '#FFFF00' : null}
-          />
+          <ColorGridWrapper>
+            <ColorGrid
+              colors={['#00FFFF', '#FF00FF', '#FFFF00', '#000000', '#00FF33', '#FFFFFF']}
+              transitionDuration={100}
+              transitionDelay={100}
+              zIndex={998}
+              finalColor={isFadingOut ? '#FFFF00' : null}
+            />
+          </ColorGridWrapper>
         )}
         
         {/* The cover page */}
